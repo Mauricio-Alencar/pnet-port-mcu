@@ -382,13 +382,17 @@ void pf_cmina_dcp_set_commit (pnet_t * net)
    char netmask_string[PNAL_INET_ADDRSTR_SIZE] = {0}; /** Terminated string */
    char gateway_string[PNAL_INET_ADDRSTR_SIZE] = {0}; /** Terminated string */
    bool permanent = true;
+   bool have_name = false;
+   bool have_ip = false;
+   const char * commit_reason = "dcp_update";
 
    if (net->cmina_commit_ip_suite == false)
    {
       LOG_INFO (
          PF_DCP_LOG,
-         "CMINA(%d): Did not set IP address. Is there a connection to the PLC, "
-         "or is the station name not set?\n",
+         "CMINA(%d): No pending IP/station-name update in this DCP Set. "
+         "Skipping pnal_set_ip_suite() (expected for control-only DCP Set, "
+         "for example LED flash).\n",
          __LINE__);
 
       return;
@@ -419,17 +423,36 @@ void pf_cmina_dcp_set_commit (pnet_t * net)
    pf_cmina_ip_to_string (
       net->cmina_current_dcp_ase.full_ip_suite.ip_suite.ip_gateway,
       gateway_string);
+   have_name = (strlen (net->cmina_current_dcp_ase.station_name) > 0);
+   have_ip =
+      ((net->cmina_current_dcp_ase.full_ip_suite.ip_suite.ip_addr != 0) ||
+       (net->cmina_current_dcp_ase.full_ip_suite.ip_suite.ip_mask != 0) ||
+       (net->cmina_current_dcp_ase.full_ip_suite.ip_suite.ip_gateway != 0));
+   if ((have_ip == false) && (have_name == false))
+   {
+      commit_reason = "reset/factory/default (empty IP + empty station name)";
+   }
+   else if ((have_ip == false) && (have_name == true))
+   {
+      commit_reason = "station-name only (waiting IP)";
+   }
+   else if ((have_ip == true) && (have_name == false))
+   {
+      commit_reason = "IP-only/transient";
+   }
+
    LOG_INFO (
       PF_DCP_LOG,
       "CMINA(%d): Setting IP: %s Netmask: %s Gateway: %s Station name: "
       "\"%s\" "
-      "Permanent: %u\n",
+      "Permanent: %u Reason: %s\n",
       __LINE__,
       ip_string,
       netmask_string,
       gateway_string,
       net->cmina_current_dcp_ase.station_name,
-      permanent);
+      permanent,
+      commit_reason);
 
    net->cmina_commit_ip_suite = false;
    res = pnal_set_ip_suite (
