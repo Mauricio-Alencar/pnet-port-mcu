@@ -1785,8 +1785,10 @@ static void pf_cmrpc_rm_connect_rsp (
    uint16_t hdr_pos;
    uint16_t start_pos;
 
+   /* NDR wrapper fields follow RPC session drep.
+    * PNIO blocks below still use get_info big-endian handling. */
    pf_put_pnet_status (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       &p_sess->rpc_result.pnio_status,
       res_size,
       p_res,
@@ -1795,25 +1797,25 @@ static void pf_cmrpc_rm_connect_rsp (
    hdr_pos = *p_res_pos; /* Save for last */
    /* Insert the response header with dummy length and actual_count */
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.args_length,
       res_size,
       p_res,
       p_res_pos);
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.array.maximum_count,
       res_size,
       p_res,
       p_res_pos);
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.array.offset,
       res_size,
       p_res,
       p_res_pos);
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.array.actual_count,
       res_size,
       p_res,
@@ -1926,25 +1928,25 @@ static void pf_cmrpc_rm_connect_rsp (
 
    /* Over-write the response header with correct length and actual_count. */
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.args_length,
       res_size,
       p_res,
       &hdr_pos);
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.array.maximum_count,
       res_size,
       p_res,
       &hdr_pos);
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.array.offset,
       res_size,
       p_res,
       &hdr_pos);
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.array.actual_count,
       res_size,
       p_res,
@@ -2266,7 +2268,7 @@ static void pf_cmrpc_rm_release_rsp (
 
    *p_status_pos = *p_res_pos;
    pf_put_pnet_status (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       &p_sess->rpc_result.pnio_status,
       res_size,
       p_res,
@@ -2275,25 +2277,25 @@ static void pf_cmrpc_rm_release_rsp (
    hdr_pos = *p_res_pos; /* Save for last. */
    /* Insert the response header with dummy length and actual_count. */
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.args_length,
       res_size,
       p_res,
       p_res_pos);
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.array.maximum_count,
       res_size,
       p_res,
       p_res_pos);
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.array.offset,
       res_size,
       p_res,
       p_res_pos);
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.array.actual_count,
       res_size,
       p_res,
@@ -2319,25 +2321,25 @@ static void pf_cmrpc_rm_release_rsp (
 
    /* Over-write the response header with correct length and actual_count. */
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.args_length,
       res_size,
       p_res,
       &hdr_pos);
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.array.maximum_count,
       res_size,
       p_res,
       &hdr_pos);
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.array.offset,
       res_size,
       p_res,
       &hdr_pos);
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.array.actual_count,
       res_size,
       p_res,
@@ -2378,7 +2380,7 @@ static int pf_cmrpc_rm_release_ind (
    memset (&rpc_result, 0, sizeof (rpc_result));
 
    /* Save things for creating the response (incl. status_pos, below...) */
-   is_big_endian = p_sess->get_info.is_big_endian;
+   is_big_endian = p_sess->is_big_endian;
 
    /* Create a positive response in case all goes well. */
    start_pos = *p_res_pos;
@@ -2601,7 +2603,7 @@ static void pf_cmrpc_rm_dcontrol_rsp (
    uint16_t start_pos;
 
    pf_put_pnet_status (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       &p_sess->rpc_result.pnio_status,
       res_size,
       p_res,
@@ -2610,25 +2612,25 @@ static void pf_cmrpc_rm_dcontrol_rsp (
    hdr_pos = *p_res_pos; /* Save for last */
    /* Insert the response header with dummy length and actual_count */
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.args_length,
       res_size,
       p_res,
       p_res_pos);
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.array.maximum_count,
       res_size,
       p_res,
       p_res_pos);
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.array.offset,
       res_size,
       p_res,
       p_res_pos);
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.array.actual_count,
       res_size,
       p_res,
@@ -2656,25 +2658,25 @@ static void pf_cmrpc_rm_dcontrol_rsp (
 
    /* Over-write the response header with correct length and actual_count. */
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.args_length,
       res_size,
       p_res,
       &hdr_pos);
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.array.maximum_count,
       res_size,
       p_res,
       &hdr_pos);
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.array.offset,
       res_size,
       p_res,
       &hdr_pos);
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.array.actual_count,
       res_size,
       p_res,
@@ -3005,7 +3007,7 @@ static int pf_cmrpc_rm_read_ind (
           */
          status_pos = *p_res_pos; /* Save for last. */
          pf_put_pnet_status (
-            p_sess->get_info.is_big_endian,
+            p_sess->is_big_endian,
             &p_sess->rpc_result.pnio_status,
             res_size,
             p_res,
@@ -3014,25 +3016,25 @@ static int pf_cmrpc_rm_read_ind (
          hdr_pos = *p_res_pos; /* Save for last. */
          /* Insert the response header with dummy length and actual_count. */
          pf_put_uint32 (
-            p_sess->get_info.is_big_endian,
+            p_sess->is_big_endian,
             p_sess->ndr_data.args_length,
             res_size,
             p_res,
             p_res_pos);
          pf_put_uint32 (
-            p_sess->get_info.is_big_endian,
+            p_sess->is_big_endian,
             p_sess->ndr_data.array.maximum_count,
             res_size,
             p_res,
             p_res_pos);
          pf_put_uint32 (
-            p_sess->get_info.is_big_endian,
+            p_sess->is_big_endian,
             p_sess->ndr_data.array.offset,
             res_size,
             p_res,
             p_res_pos);
          pf_put_uint32 (
-            p_sess->get_info.is_big_endian,
+            p_sess->is_big_endian,
             p_sess->ndr_data.array.actual_count,
             res_size,
             p_res,
@@ -3063,38 +3065,44 @@ static int pf_cmrpc_rm_read_ind (
 
          /* Insert the actual operation result */
          pf_put_pnet_status (
-            p_sess->get_info.is_big_endian,
+            p_sess->is_big_endian,
             &p_sess->rpc_result.pnio_status,
             res_size,
             p_res,
             &status_pos);
 
-         /* Fixup the header with correct length info. */
+         /* Fixup the NDR header with consistent response array bounds.
+          * For read/read-implicit responses, return one contiguous payload:
+          * args_length == maximum_count == actual_count and offset == 0.
+          * Some engineering tools reject frames if maximum_count keeps the
+          * large request-side value (typically 0x00008040). */
          p_sess->ndr_data.args_length = *p_res_pos - start_pos;
-         p_sess->ndr_data.array.actual_count = *p_res_pos - start_pos;
+         p_sess->ndr_data.array.maximum_count = p_sess->ndr_data.args_length;
+         p_sess->ndr_data.array.offset = 0;
+         p_sess->ndr_data.array.actual_count = p_sess->ndr_data.args_length;
 
          /* Over-write the response header with correct length and actual_count.
           */
          pf_put_uint32 (
-            p_sess->get_info.is_big_endian,
+            p_sess->is_big_endian,
             p_sess->ndr_data.args_length,
             res_size,
             p_res,
             &hdr_pos);
          pf_put_uint32 (
-            p_sess->get_info.is_big_endian,
+            p_sess->is_big_endian,
             p_sess->ndr_data.array.maximum_count,
             res_size,
             p_res,
             &hdr_pos);
          pf_put_uint32 (
-            p_sess->get_info.is_big_endian,
+            p_sess->is_big_endian,
             p_sess->ndr_data.array.offset,
             res_size,
             p_res,
             &hdr_pos);
          pf_put_uint32 (
-            p_sess->get_info.is_big_endian,
+            p_sess->is_big_endian,
             p_sess->ndr_data.array.actual_count,
             res_size,
             p_res,
@@ -3413,7 +3421,7 @@ static int pf_cmrpc_rm_write_ind (
 
    res_status_pos = *p_res_pos; /* Save for last. */
    pf_put_pnet_status (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       &p_sess->rpc_result.pnio_status,
       res_size,
       p_res,
@@ -3422,25 +3430,25 @@ static int pf_cmrpc_rm_write_ind (
    res_hdr_pos = *p_res_pos; /* Save for last. */
    /* Insert the response NDR header with dummy values. */
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.args_length,
       res_size,
       p_res,
       p_res_pos);
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.array.maximum_count,
       res_size,
       p_res,
       p_res_pos);
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.array.offset,
       res_size,
       p_res,
       p_res_pos);
    pf_put_uint32 (
-      p_sess->get_info.is_big_endian,
+      p_sess->is_big_endian,
       p_sess->ndr_data.array.actual_count,
       res_size,
       p_res,
@@ -3588,25 +3596,25 @@ static int pf_cmrpc_rm_write_ind (
       p_sess->ndr_data.array.actual_count = p_sess->ndr_data.args_length;
 
       pf_put_uint32 (
-         p_sess->get_info.is_big_endian,
+         p_sess->is_big_endian,
          p_sess->ndr_data.args_length,
          res_size,
          p_res,
          &res_hdr_pos);
       pf_put_uint32 (
-         p_sess->get_info.is_big_endian,
+         p_sess->is_big_endian,
          p_sess->ndr_data.array.maximum_count,
          res_size,
          p_res,
          &res_hdr_pos);
       pf_put_uint32 (
-         p_sess->get_info.is_big_endian,
+         p_sess->is_big_endian,
          p_sess->ndr_data.array.offset,
          res_size,
          p_res,
          &res_hdr_pos);
       pf_put_uint32 (
-         p_sess->get_info.is_big_endian,
+         p_sess->is_big_endian,
          p_sess->ndr_data.array.actual_count,
          res_size,
          p_res,
@@ -3615,7 +3623,7 @@ static int pf_cmrpc_rm_write_ind (
       /* Insert the actual result of the write operation into the first result
        * block */
       pf_put_pnet_status (
-         p_sess->get_info.is_big_endian,
+         p_sess->is_big_endian,
          &p_sess->rpc_result.pnio_status,
          res_size,
          p_res,
@@ -4397,6 +4405,8 @@ int pf_cmrpc_dce_packet (
          p_sess->ip_addr = ip_addr;
          p_sess->port = port;
          p_sess->activity_uuid = rpc_req.activity_uuid;
+         /* Session drep captured from first RPC header.
+          * Legacy code later reused get_info.is_big_endian directly. */
          p_sess->is_big_endian = p_sess->get_info.is_big_endian;
          p_sess->in_fragment_nbr = 0;
          p_sess->kill_session = false;
@@ -4417,6 +4427,8 @@ int pf_cmrpc_dce_packet (
             p_sess->port = port;
             p_sess->activity_uuid = rpc_req.activity_uuid;
 
+            /* Store transport-level drep for all fragments in this session.
+             * Legacy behavior compared/requested drep via get_info only. */
             p_sess->is_big_endian = p_sess->get_info.is_big_endian;
             p_sess->in_fragment_nbr = 0;
             p_sess->kill_session = false;
@@ -4426,8 +4438,9 @@ int pf_cmrpc_dce_packet (
             /* Intermediate or last incoming fragment. */
             if (p_sess->is_big_endian != rpc_req.is_big_endian)
             {
-               /* Endianness differs. All fragments must have same endianness in
-                * this implementation */
+               /* Endianness differs. All fragments must have same endianness.
+                * Compatibility check is against session drep from fragment 0.
+                * Legacy reference: compared/used get_info.is_big_endian. */
                LOG_ERROR (
                   PF_RPC_LOG,
                   "CMRPC(%d): Endianness differs in incoming fragments\n",
@@ -4632,7 +4645,8 @@ int pf_cmrpc_dce_packet (
                   ret = -1;
                   break;
                }
-               /* From now on all is big-endian */
+               /* From here, PNIO block parsing/writing is big-endian.
+                * Keep RPC/NDR wrapper fields on session drep. */
                p_sess->get_info.is_big_endian = true;
 
                /* Our response is limited by the size of the requesters response
@@ -4669,8 +4683,12 @@ int pf_cmrpc_dce_packet (
             rpc_res.fragment_nmb = p_sess->out_fragment_nbr;
             rpc_res.serial_high = (uint8_t)(rpc_res.fragment_nmb >> 8U);
             rpc_res.serial_low = rpc_res.fragment_nmb & UINT8_MAX;
-            rpc_res.is_big_endian = p_sess->get_info.is_big_endian;
-
+            /* Keep RPC header data representation aligned with the
+             * requester/session. Payload parsing may temporarily switch
+             * get_info endianness, but response PDU drep must stay stable.
+             * Legacy reference:
+             * rpc_res.is_big_endian = p_sess->get_info.is_big_endian; */
+            rpc_res.is_big_endian = p_sess->is_big_endian;
             /* Insert the response header to get pos of rpc response body. */
             rpc_hdr_start_pos = p_sess->out_buf_len;
             pf_put_dce_rpc_header (
@@ -4869,8 +4887,11 @@ int pf_cmrpc_dce_packet (
                rpc_res.fragment_nmb = p_sess->out_fragment_nbr;
                rpc_res.serial_high = (uint8_t)(rpc_res.fragment_nmb >> 8U);
                rpc_res.serial_low = rpc_res.fragment_nmb & UINT8_MAX;
-               rpc_res.is_big_endian =
-                  p_sess->from_me ? true : p_sess->get_info.is_big_endian;
+               /* Fragmented responses must use same drep as first fragment.
+                * Legacy reference:
+                * rpc_res.is_big_endian =
+                *    p_sess->from_me ? true : p_sess->get_info.is_big_endian; */
+               rpc_res.is_big_endian = p_sess->is_big_endian;
 
                rpc_hdr_start_pos = res_pos;
                /* Insert the response header to get pos of rpc response length.
@@ -5034,7 +5055,9 @@ int pf_cmrpc_dce_packet (
                         p_sess->ndr_data.pnio_status);
                   }
 
-                  p_sess->get_info.is_big_endian = true; /* From now on all is
+                  p_sess->get_info.is_big_endian = true; /* From here, PNIO
+                                                            block parsing/
+                                                            writing is
                                                             big-endian */
                   ret = pf_cmrpc_rpc_response (net, p_sess, req_pos, &rpc_req);
                }

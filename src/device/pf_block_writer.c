@@ -1284,10 +1284,9 @@ void pf_put_ar_data (
             }
          }
       }
-      if (cnt > 0)
-      {
-         pf_put_uint16 (is_big_endian, cnt, res_len, p_bytes, p_pos);
-      }
+      /* Keep ARData syntactically complete even when there is no active AR.
+       * Some IO supervisor tools expect NumberOfARs to be present (value 0). */
+      pf_put_uint16 (is_big_endian, cnt, res_len, p_bytes, p_pos);
       if (p_ar == NULL)
       {
          /* Insert the ARs */

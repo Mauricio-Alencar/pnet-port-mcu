@@ -373,6 +373,7 @@ static int pf_dcp_get_req (
    bool skip = false; /* When true: Do not insert block in response */
    pf_full_ip_suite_t full_ip_suite;
    uint16_t temp16;
+   uint8_t temp_role_value[2];
    uint16_t ix;
 
    /* Get the data */
@@ -486,7 +487,13 @@ static int pf_dcp_get_req (
          value_length = (uint16_t)strlen ((char *)p_value);
          break;
       case PF_DCP_SUB_DEV_PROP_ROLE:
-         value_length += 1;
+         /* DeviceRole block payload is 2 bytes:
+          * [0] role value, [1] reserved (shall be 0).
+          * cmina stores only one byte for role, so avoid reading past source. */
+         temp_role_value[0] = (value_length > 0 && p_value != NULL) ? p_value[0] : 0;
+         temp_role_value[1] = 0;
+         p_value = temp_role_value;
+         value_length = sizeof (temp_role_value);
          break;
       case PF_DCP_SUB_DEV_PROP_ID:
       case PF_DCP_SUB_DEV_PROP_INSTANCE:
