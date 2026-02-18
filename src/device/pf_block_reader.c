@@ -459,6 +459,38 @@ int pf_get_iocr_param (
 
    p_ar->iocrs[ix].param.nbr_apis = pf_get_uint16 (p_info, p_pos);
 
+   {
+      const uint32_t control_interval_us =
+         ((uint32_t)p_ar->iocrs[ix].param.send_clock_factor *
+          (uint32_t)p_ar->iocrs[ix].param.reduction_ratio * 1000U) /
+         32U;
+      const uint64_t dht_timeout_us =
+         (uint64_t)control_interval_us *
+         (uint64_t)p_ar->iocrs[ix].param.data_hold_factor;
+      const uint32_t control_interval_ms_int = control_interval_us / 1000U;
+      const uint32_t control_interval_ms_frac = control_interval_us % 1000U;
+      const uint64_t dht_timeout_ms_int = dht_timeout_us / 1000U;
+      const uint64_t dht_timeout_ms_frac = dht_timeout_us % 1000U;
+
+      LOG_INFO (
+         PF_RPC_LOG,
+         "CMRPC(%d): IOCR[%u] timing: frame_id=0x%04x send_clock=%u "
+         "reduction=%u watchdog_factor=%u data_hold_factor=%u => "
+         "control_interval=%" PRIu32 ".%03" PRIu32 " ms "
+         "dht_timeout=%" PRIu64 ".%03" PRIu64 " ms\n",
+         __LINE__,
+         (unsigned)ix,
+         (unsigned)p_ar->iocrs[ix].param.frame_id,
+         (unsigned)p_ar->iocrs[ix].param.send_clock_factor,
+         (unsigned)p_ar->iocrs[ix].param.reduction_ratio,
+         (unsigned)p_ar->iocrs[ix].param.watchdog_factor,
+         (unsigned)p_ar->iocrs[ix].param.data_hold_factor,
+         control_interval_ms_int,
+         control_interval_ms_frac,
+         dht_timeout_ms_int,
+         dht_timeout_ms_frac);
+   }
+
    if (pf_cmdev_check_iocr_param (p_ar, p_result) != 0)
    {
       /* Error already set */

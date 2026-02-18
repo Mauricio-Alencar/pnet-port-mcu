@@ -238,6 +238,32 @@ int pf_cpm_activate_req (pnet_t * net, pf_ar_t * p_ar, uint32_t crep)
           (uint32_t)p_iocr->param.reduction_ratio * 1000U) /
          32U; /* us */
 
+      {
+         const uint64_t dht_timeout_us =
+            (uint64_t)p_cpm->control_interval *
+            (uint64_t)p_cpm->data_hold_factor;
+         const uint32_t control_interval_ms_int = p_cpm->control_interval / 1000U;
+         const uint32_t control_interval_ms_frac =
+            p_cpm->control_interval % 1000U;
+         const uint64_t dht_timeout_ms_int = dht_timeout_us / 1000U;
+         const uint64_t dht_timeout_ms_frac = dht_timeout_us % 1000U;
+
+         LOG_INFO (
+            PF_CPM_LOG,
+            "CPM(%d): AREP %u CREP %" PRIu32
+            " effective DHT: control_interval=%" PRIu32 ".%03" PRIu32
+            " ms data_hold_factor=%u => timeout=%" PRIu64 ".%03" PRIu64
+            " ms\n",
+            __LINE__,
+            p_ar->arep,
+            crep,
+            control_interval_ms_int,
+            control_interval_ms_frac,
+            (unsigned)p_cpm->data_hold_factor,
+            dht_timeout_ms_int,
+            dht_timeout_ms_frac);
+      }
+
       for (ix = 0; ix < pf_port_get_number_of_ports (net); ix++)
       {
          p_cpm->rxa[ix][0] = -1; /* "invalid" cycle counter */
